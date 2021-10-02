@@ -108,6 +108,30 @@ class App extends React.Component {
         this.state.currentList.items[index]=textValue;
         this.db.mutationUpdateList(this.state.currentList);
     }
+    moveItem = (index1, index2) => {
+        if (index1 > index2) {
+            let temp=this.state.currentList.items[index2];
+            this.state.currentList.items[index2]=this.state.currentList.items[index1];
+            for (let i=index1;i>index2;i--) {
+                this.state.currentList.items[i]=this.state.currentList.items[i-1];
+            }
+            index2++;
+            this.state.currentList.items[index2]=temp;
+        }
+        else if (index1 < index2){
+            let temp=this.state.currentList.items[index1];
+            index1++;
+            let temp2=this.state.currentList.items[index1];
+            index1--;
+            for (let i=index1;i<=index2;i++) {
+                console.log(this.state.currentList.items[i]+" became "+this.state.currentList.items[i+1])
+                this.state.currentList.items[i]=this.state.currentList.items[i+1];
+            }
+            this.state.currentList.items[index2]=temp;
+            this.state.currentList.items[index1]=temp2;
+        }
+        this.db.mutationUpdateList(this.state.currentList);
+    }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
         let newCurrentList = this.db.queryGetList(key);
@@ -164,6 +188,7 @@ class App extends React.Component {
                 <Workspace
                     currentList={this.state.currentList} 
                     renameItemCallback={this.renameItem}
+                    moveItemCallback={this.moveItem}
                 />
                 <Statusbar 
                     currentList={this.state.currentList} />

@@ -31,6 +31,20 @@ export default class ItemCard extends React.Component {
     handleUpdate = (event) => {
         this.setState({text: event.target.value});
     }
+    dragStart = (e) => {
+        const target=e.target;
+        e.dataTransfer.setData('item_id', target.getAttribute('index'))
+    }
+    dragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.target.classList.add('top5-item-dragged-to')
+    }
+    dragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.target.classList.remove('top5-item-dragged-to')
+    }
     render() {
         const {index} = this.props;
         return (
@@ -43,7 +57,14 @@ export default class ItemCard extends React.Component {
                         onChange={this.handleUpdate}
                         defaultValue={this.state.text}
                     />
-                    : <div className="top5-item" onClick={this.handleClick} index={index}>{this.state.text}</div>
+                    : <div className="top5-item" 
+                            onClick={this.handleClick} 
+                            index={index}
+                            onDragStart={this.dragStart}
+                            onDragOver={this.dragOver}
+                            onDragLeave={this.dragLeave}
+                            draggable={'true'}
+                            >{this.state.text}</div>
             );
 
     }
