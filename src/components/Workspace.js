@@ -26,7 +26,7 @@ export default class Workspace extends React.Component {
                                 <ItemCard
                                     item={item}
                                     index={index}
-                                    key={index}
+                                    key={currentList.items[index]+index}
                                     renameItemCallback={renameItemCallback}
                                 />
                             ))}
