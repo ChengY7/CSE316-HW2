@@ -113,8 +113,10 @@ class App extends React.Component {
     }
     renameItem = (index, textValue) => {
         this.state.currentList.items[index]=textValue;
+        this.setState({
+            currentList: this.state.currentList
+        })
         this.db.mutationUpdateList(this.state.currentList)
-        this.moveItem(index, index)
         //let newList = { items: this.state.currentList.items}
        // newList[index]=textValue;
         //this.setState({
@@ -166,7 +168,7 @@ class App extends React.Component {
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             sessionData: this.state.sessionData
         }), () => {
-            // ANY AFTER EFFECTS?
+            this.tps.clearAllTransactions()
         });
     }
     deleteList = (knp) => {
@@ -195,6 +197,7 @@ class App extends React.Component {
                 counter: prevState.sessionData.counter,
             }
         }), () => {
+            this.tps.clearAllTransactions()
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
@@ -207,7 +210,16 @@ class App extends React.Component {
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
     }
+    keyboardCommand = () => {
+        if (window.event.keyCode===90) {
+            this.undo()
+        }
+        else if (window.event.keyCode===89) {
+            this.redo()
+        }
+    }
     render() {
+        {document.addEventListener('keydown', this.keyboardCommand)}
         return (
             <div id="app-root">
                 <Banner 
