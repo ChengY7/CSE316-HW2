@@ -69,6 +69,7 @@ class App extends React.Component {
             // PUTTING THIS NEW LIST IN PERMANENT STORAGE
             // IS AN AFTER EFFECT
             this.db.mutationCreateList(newList);
+            this.db.mutationUpdateSessionData(this.state.sessionData)
         });
         console.log(this.state.sessionData.keyNamePairs)
     }
@@ -164,9 +165,9 @@ class App extends React.Component {
         }
         this.setState(prevState => ({
             sessionData: {
+                keyNamePairs: this.state.sessionData.keyNamePairs,
                 nextKey: prevState.sessionData.nextKey + 1,
                 counter: prevState.sessionData.counter + 1,
-                keyNamePairs: this.state.sessionData.keyNamePairs
             }
         }), () => {
             this.db.mutationUpdateSessionData(this.state.sessionData);
