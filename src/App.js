@@ -166,8 +166,8 @@ class App extends React.Component {
         this.setState(prevState => ({
             sessionData: {
                 keyNamePairs: this.state.sessionData.keyNamePairs,
-                nextKey: prevState.sessionData.nextKey + 1,
-                counter: prevState.sessionData.counter + 1,
+                nextKey: prevState.sessionData.nextKey,
+                counter: prevState.sessionData.counter,
             }
         }), () => {
             this.db.mutationUpdateSessionData(this.state.sessionData);
