@@ -9,7 +9,10 @@ import DeleteModal from './components/DeleteModal';
 import Banner from './components/Banner.js'
 import Sidebar from './components/Sidebar.js'
 import Workspace from './components/Workspace.js';
-import Statusbar from './components/Statusbar.js'
+import Statusbar from './components/Statusbar.js';
+import tps from './components/jsTPS.js';
+import MoveItem_Transaction from './components/MoveItem_Transaction.js';
+import ChangeItem_Transaction from './components/ChangeItem_Transaction';
 
 class App extends React.Component {
     constructor(props) {
@@ -17,6 +20,8 @@ class App extends React.Component {
 
         // THIS WILL TALK TO LOCAL STORAGE
         this.db = new DBManager();
+
+        this.tps = new tps();
 
         // GET THE SESSION DATA FROM OUR DATA MANAGER
         let loadedSessionData = this.db.queryGetSessionData();
@@ -109,6 +114,7 @@ class App extends React.Component {
     renameItem = (index, textValue) => {
         this.state.currentList.items[index]=textValue;
         this.db.mutationUpdateList(this.state.currentList)
+        this.moveItem(index, index)
         //let newList = { items: this.state.currentList.items}
        // newList[index]=textValue;
         //this.setState({
@@ -123,6 +129,25 @@ class App extends React.Component {
             currentList: this.state.currentList
         })
         this.db.mutationUpdateList(this.state.currentList);
+    }
+    addChangeItemTransaction = (id, newText) => {
+        let oldText = this.state.currentList.items[id]
+        let transaction = new ChangeItem_Transaction(this, id, oldText, newText);
+        this.tps.addTransaction(transaction);
+    }
+    addMoveItemTransaction = (oldIndex, newIndex) => {
+        let transaction = new MoveItem_Transaction(this, oldIndex, newIndex);
+        this.tps.addTransaction(transaction);
+    }
+    undo=() =>{
+        if (this.tps.hasTransactionToUndo()) {
+            this.tps.undoTransaction();
+        }
+    }
+    redo=() =>{
+        if (this.tps.hasTransactionToRedo()) {
+            this.tps.doTransaction();
+        }
     }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
@@ -187,7 +212,9 @@ class App extends React.Component {
             <div id="app-root">
                 <Banner 
                     title='Top 5 Lister'
-                    closeCallback={this.closeCurrentList} />
+                    closeCallback={this.closeCurrentList} 
+                    redoCallback={this.redo}
+                    undoCallback={this.undo}/>
                 <Sidebar
                     heading='Your Lists'
                     currentList={this.state.currentList}
@@ -199,9 +226,9 @@ class App extends React.Component {
                 />
                 <Workspace
                     currentList={this.state.currentList} 
-                    renameItemCallback={this.renameItem}
+                    renameItemCallback={this.addChangeItemTransaction}
                     key={this.state.currentList && this.state.currentList.key}
-                    moveItemCallback={this.moveItem}
+                    moveItemCallback={this.addMoveItemTransaction}
                 />
                 <Statusbar 
                     currentList={this.state.currentList} />
