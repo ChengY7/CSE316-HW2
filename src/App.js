@@ -117,6 +117,8 @@ class App extends React.Component {
             currentList: this.state.currentList
         })
         this.db.mutationUpdateList(this.state.currentList)
+        this.checkRedoButton();
+        this.checkUndoButton();
         //let newList = { items: this.state.currentList.items}
        // newList[index]=textValue;
         //this.setState({
@@ -131,25 +133,35 @@ class App extends React.Component {
             currentList: this.state.currentList
         })
         this.db.mutationUpdateList(this.state.currentList);
+        this.checkRedoButton();
+        this.checkUndoButton();
     }
     addChangeItemTransaction = (id, newText) => {
         let oldText = this.state.currentList.items[id]
         let transaction = new ChangeItem_Transaction(this, id, oldText, newText);
         this.tps.addTransaction(transaction);
+        this.checkRedoButton();
+        this.checkUndoButton();
     }
     addMoveItemTransaction = (oldIndex, newIndex) => {
         let transaction = new MoveItem_Transaction(this, oldIndex, newIndex);
         this.tps.addTransaction(transaction);
+        this.checkRedoButton();
+        this.checkUndoButton();
     }
     undo=() =>{
         if (this.tps.hasTransactionToUndo()) {
             this.tps.undoTransaction();
         }
+        this.checkRedoButton();
+        this.checkUndoButton();
     }
     redo=() =>{
         if (this.tps.hasTransactionToRedo()) {
             this.tps.doTransaction();
         }
+        this.checkRedoButton();
+        this.checkUndoButton();
     }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
@@ -158,7 +170,11 @@ class App extends React.Component {
             currentList: newCurrentList,
             sessionData: prevState.sessionData
         }), () => {
-            // ANY AFTER EFFECTS?
+            this.tps.clearAllTransactions();
+            document.getElementById('close-button').style.opacity=1;
+            document.getElementById('close-button').style.pointerEvents='auto';
+            this.checkRedoButton();
+            this.checkUndoButton();
         });
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
@@ -169,6 +185,10 @@ class App extends React.Component {
             sessionData: this.state.sessionData
         }), () => {
             this.tps.clearAllTransactions()
+            document.getElementById('close-button').style.opacity=0.5;
+            document.getElementById('close-button').style.pointerEvents='none';
+            this.checkRedoButton();
+            this.checkUndoButton();
         });
     }
     deleteList = (knp) => {
@@ -190,6 +210,9 @@ class App extends React.Component {
                 this.state.sessionData.keyNamePairs.splice(i, 1)
             }
         }
+        if(knp.key==this.state.currentList.key) {
+            this.closeCurrentList();
+        }
         this.setState(prevState => ({
             sessionData: {
                 keyNamePairs: this.state.sessionData.keyNamePairs,
@@ -199,6 +222,8 @@ class App extends React.Component {
         }), () => {
             this.tps.clearAllTransactions()
             this.db.mutationUpdateSessionData(this.state.sessionData);
+            this.checkRedoButton();
+            this.checkUndoButton();
         });
     }
     showDeleteListModal() {
@@ -216,6 +241,28 @@ class App extends React.Component {
         }
         else if (window.event.keyCode===89) {
             this.redo()
+        }
+        this.checkRedoButton();
+        this.checkUndoButton();
+    }
+    checkRedoButton() {
+        if (!this.tps.hasTransactionToRedo()) {
+            document.getElementById("redo-button").style.opacity=0.5;
+            document.getElementById("redo-button").style.pointerEvents='none';
+        } else {
+            document.getElementById("redo-button").style.opacity=1;
+            document.getElementById("redo-button").style.pointerEvents='auto';
+        }
+    }
+    checkUndoButton() {
+        if (!this.tps.hasTransactionToUndo()) {
+            document.getElementById("undo-button").style.opacity=0.5;
+            document.getElementById("undo-button").style.pointerEvents='none';
+            console.log("no undo");
+        } else {
+            document.getElementById("undo-button").style.opacity=1;
+            document.getElementById("undo-button").style.pointerEvents='auto'
+            console.log("yes undo");
         }
     }
     render() {
