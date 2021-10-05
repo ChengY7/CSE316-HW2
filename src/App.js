@@ -75,8 +75,9 @@ class App extends React.Component {
             // IS AN AFTER EFFECT
             this.db.mutationCreateList(newList);
             this.db.mutationUpdateSessionData(this.state.sessionData)
+            document.getElementById('close-button').style.opacity=1;
+            document.getElementById('close-button').style.pointerEvents='auto';
         });
-        console.log(this.state.sessionData.keyNamePairs)
     }
     renameList = (key, newName) => {
         let newKeyNamePairs = [...this.state.sessionData.keyNamePairs];
@@ -258,11 +259,9 @@ class App extends React.Component {
         if (!this.tps.hasTransactionToUndo()) {
             document.getElementById("undo-button").style.opacity=0.5;
             document.getElementById("undo-button").style.pointerEvents='none';
-            console.log("no undo");
         } else {
             document.getElementById("undo-button").style.opacity=1;
             document.getElementById("undo-button").style.pointerEvents='auto'
-            console.log("yes undo");
         }
     }
     render() {
